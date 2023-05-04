@@ -7,7 +7,7 @@ import FormServices from 'services/FormServices';
 import styles from 'styles/Home.module.css';
 function Home() {
   const [name, setName] = useState('');
-  const [files, setFiles] = useState(null);
+  const [files, setFiles] = useState([]);
   const [success, setSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [fileErrorMessage, setFileErrorMessage] = useState('');
@@ -35,7 +35,6 @@ function Home() {
   const sendImage = (file) => {
     setImage(file);
     setPreviewUrl(URL.createObjectURL(file));
-    setFiles(file);
   };
   //Function that gets the value of input name
   const handleChangeNameImg = (e) => {
@@ -64,7 +63,7 @@ function Home() {
   };
   //Function to generate a validation for the extension of the image
   function validateImageExtension(fileName) {
-    const validExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
+    const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
     const extension = fileName.slice(fileName.lastIndexOf('.'));
     return validExtensions.includes(extension.toLowerCase());
   }
@@ -73,20 +72,30 @@ function Home() {
     e.preventDefault();
     e.stopPropagation();
     setFileErrorMessage('');
+
+    const fileList = e.dataTransfer.files;
+    const fileArr = Array.from(fileList);
     let imageFile = e.dataTransfer.files[0];
+
     if (validateImageExtension(imageFile.name)) {
       sendImage(imageFile);
+      setFiles(fileArr);
+      console.log(files);
     } else {
       setFileErrorMessage('Solo se aceptan archivos de tipo imagen');
     }
     setIsDragging(false);
   };
 
+  const subirArchivo = () => {
+    inputRef.current.click();
+  };
   const handleSubmit = async (e) => {
+    e.preventDefault();
     setSuccess(false);
     setErrorMessage('');
     setFileErrorMessage('');
-    e.preventDefault();
+
     const { ok, data } = await FormServices.save({
       name,
       files,
@@ -121,10 +130,10 @@ function Home() {
             onDrop={handleDrop}
             ref={drop}
           >
-            {!files && windowWidth.current < 480 && (
+            {files.length === 0 && windowWidth.current < 480 && (
               <p>Subí tu imagen favorita</p>
             )}
-            {!files && !isDragging && windowWidth.current > 480 && (
+            {files.length === 0 && !isDragging && windowWidth.current > 480 && (
               <p>Arrastra la imagen a esta zona</p>
             )}
             <Input
@@ -134,7 +143,9 @@ function Home() {
               multiple={true}
               handleChange={(e) => {
                 e.preventDefault();
-                setFiles(e.target.files[0]);
+                const fileList = event.target.files;
+                const fileArray = Array.from(fileList);
+                setFiles(fileArray);
                 sendImage(e.target.files[0]);
               }}
               type="file"
@@ -146,19 +157,20 @@ function Home() {
             )}
             {previewUrl && (
               <div className={styles.imgContainer}>
-                {/*I should have added a new rule to the .eslintrc file: "@next/next/no-img-element": "off" */}
-                <img
-                  src={previewUrl}
-                  style={{ width: '120px' }}
-                  alt="Preview"
-                />
+                {files.map((file) => (
+                  <div key={file.name}>
+                    {/*I should have added a new rule to the .eslintrc file: "@next/next/no-img-element": "off" */}
+                    <img
+                      src={previewUrl}
+                      style={{ width: '120px' }}
+                      alt="Preview"
+                    />
+                  </div>
+                ))}
               </div>
             )}
             {!isDragging && (
-              <button
-                className={styles.btnLoadImg}
-                onClick={() => inputRef.current.click()}
-              >
+              <button className={styles.btnLoadImg} onClick={subirArchivo}>
                 Subir Archivo{' '}
                 <svg
                   width="16"
@@ -197,7 +209,7 @@ Home.defaultProps = {
   handleChange: () => {},
   errorMessage: '',
   label: '',
-  files: null,
+  files: [],
   image: null,
   fileErrorMessage: '',
 };
@@ -214,7 +226,7 @@ Home.propTypes = {
   fileErrorMessage: PropTypes.string,
   label: PropTypes.string,
   name: PropTypes.string,
-  files: PropTypes.object,
+  files: PropTypes.array,
   previewUrl: PropTypes.string,
   image: PropTypes.object,
 };
