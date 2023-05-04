@@ -21,7 +21,6 @@ const withAuth = (Component, roles = []) =>
       useLoginContext();
     const { hideLoadingSpinner, Loading } = useLoading(true);
     const router = useRouter();
-
     useEffect(() => {
       // Try to fetch user from previous session.
       const refresh = async () => {

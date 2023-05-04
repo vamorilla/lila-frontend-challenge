@@ -3,11 +3,19 @@ import cn from 'utils/classNames';
 import styles from './Input.module.css';
 
 /** Styled reusable form's Input component. */
-const Input = ({ handleChange, className, label, errorMessage, ...props }) => {
+const Input = ({
+  handleChange,
+  className,
+  label,
+  errorMessage,
+  innerRef,
+  ...props
+}) => {
   return (
     <>
       {label && <label className={styles.label}>{label}</label>}
       <input
+        ref={innerRef}
         className={cn(styles.input, styles[props.size], className)}
         onChange={handleChange}
         {...props}

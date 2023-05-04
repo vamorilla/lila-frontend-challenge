@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useLoginContext } from 'utils/auth';
+import PropTypes from 'prop-types';
 import Img from 'components/Img';
 import Input from 'components/Input';
 import Button from 'components/Button';
@@ -11,6 +12,7 @@ const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
   const [success, setSuccess] = useState(false);
   const { login } = useLoginContext();
+  const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -24,15 +26,15 @@ const Login = () => {
 
   const handleLogin = async () => {
     setSuccess(false);
+    setErrorMessage('');
     const { ok, data } = await login(form);
     if (ok) {
       setSuccess(true);
-      // ToDo: Redirect the user to the home page after a successful login.
+      router.push('/');
     } else {
-      // ToDo: If the login fails, show the error message returned from the api to the user.
+      setErrorMessage(data);
     }
   };
-
   return (
     <div className={styles.main}>
       <Img src={imgLogo} alt="Logo" className={styles.logo} />
@@ -52,6 +54,7 @@ const Login = () => {
         value={form.password}
         handleChange={handleChange}
         size="large"
+        errorMessage={errorMessage}
       />
       {success && <p className={styles.success}>Ingreso exitoso</p>}
       <Button
@@ -63,6 +66,14 @@ const Login = () => {
       />
     </div>
   );
+};
+
+Login.propTypes = {
+  handleChange: PropTypes.func,
+  handleLogin: PropTypes.func,
+  errorMessage: PropTypes.string,
+  label: PropTypes.string,
+  success: PropTypes.bool,
 };
 
 export default Login;

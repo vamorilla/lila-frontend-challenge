@@ -37,3 +37,10 @@
 .large {
   width: 100%;
 }
+
+.input[type='file']::-webkit-file-upload-button {
+  display: none;
+}
+.input[type='file'] {
+  color: transparent !important;
+}

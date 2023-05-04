@@ -38,6 +38,7 @@ const handler = async ({ method, query, body, headers }, resToFront) => {
   try {
     switch (method.toUpperCase()) {
       case 'POST': {
+        console.log(endpoint[0]);
         switch (endpoint[0]) {
           case 'login': {
             const { email, password } = body;
